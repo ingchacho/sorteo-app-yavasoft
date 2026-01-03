@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sorteo de Números</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/sorteo-style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Sorteo</h1>
+
+        <div class="card-masivo">
+            <textarea id="numerosMasivos" rows="5"
+                placeholder="Pega aquí los items del sorteo (nombres o números, separados por coma o espacio)">
+            </textarea>
+            <button onclick="agregarNumerosMasivos()">Agregar en bloque</button>
+        </div>
+
+        <button class="btn-sorteo" onclick="realizarSorteo()">🎉 Realizar Sorteo</button>
+
+        <!-- SLOT MACHINE -->
+        <div id="slotContainer" class="slot hidden">
+            <div id="slotNumero"></div>
+        </div>
+
+        <div class="resultado" id="resultado"></div>
+
+        <button id="btnNuevoSorteo"
+            class="btn-reset hidden"
+            onclick="nuevoSorteo()">
+            🔄 Nuevo sorteo
+        </button>
+
+        <div class="lista">
+            <h3>Items participantes</h3>
+            <ul id="listaNumeros" class="grid-numeros"></ul>
+        </div>
+    </div>
+
+    <script src="js/sorteo-logic.js"></script>
+</body>
+</html>

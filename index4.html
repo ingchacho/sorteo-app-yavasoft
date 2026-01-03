@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteo de Números con Ruleta</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .steps-container::before {
+            content: '';
+            position: absolute;
+            top: 17px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            z-index: 0;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .step:hover {
+            transform: scale(1.05);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-number {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        .step.completed .step-number {
+            background: #10b981;
+            color: white;
+        }
+
+        .carousel-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .carousel-wrapper {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            padding: 0 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 900px;
+            height: fit-content;
+            max-height: calc(100vh - 280px);
+            overflow-y: auto;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            flex: 1;
+        }
+
+        .card-title h2 {
+            font-size: 1.6rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .card-title p {
+            font-size: 0.95rem;
+            color: #6b7280;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+            font-family: inherit;
+            min-height: 200px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea:disabled {
+            background: #f3f4f6;
+            cursor: not-allowed;
+        }
+
+        .input-hint {
+            font-size: 0.88rem;
+            color: #6b7280;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: 15px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            color: white;
+            font-size: 1.4rem;
+            padding: 22px;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .nav-button.prev {
+            left: 10px;
+        }
+
+        .nav-button.next {
+            right: 10px;
+        }
+
+        .ruleta-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            margin: 25px 0;
+        }
+
+        .ruleta-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        canvas {
+            background: #1f2937;
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+        }
+
+        .contador-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .resultado-box {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .resultado-box h2 {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .numero-ganador {
+            font-size: 4.5rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .animacion-sorteo {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            color: white;
+            font-size: 1.4rem;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .animacion-sorteo .spinner {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .participantes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .participante-item {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 12px;
+            padding: 18px 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            word-break: break-word;
+        }
+
+        .participante-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .participante-item.ganador {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            color: white;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+            animation: ganadorPulse 1.5s infinite;
+        }
+
+        @keyframes ganadorPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+            }
+            50% {
+                transform: scale(1.08);
+                box-shadow: 0 0 30px rgba(16, 185, 129, 0.9);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state-icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .steps-container {
+                gap: 20px;
+            }
+
+            .step {
+                font-size: 0.75rem;
+            }
+
+            .step-number {
+                width: 35px;
+                height: 35px;
+                font-size: 1.1rem;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .carousel-slide {
+                padding: 0 50px;
+            }
+
+            .card {
+                padding: 25px;
+            }
+
+            canvas {
+                width: 280px !important;
+                height: 280px !important;
+            }
+
+            .nav-button {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+
+        .card::-webkit-scrollbar,
+        .participantes-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .card::-webkit-scrollbar-track,
+        .participantes-grid::-webkit-scrollbar-track {
+            background: #e5e7eb;
+            border-radius: 10px;
+        }
+
+        .card::-webkit-scrollbar-thumb,
+        .participantes-grid::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .card::-webkit-scrollbar-thumb:hover,
+        .participantes-grid::-webkit-scrollbar-thumb:hover {
+            background: #5563d8;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>🎲 Sorteo de Números con Ruleta</h1>
+            <p>Sigue los pasos para realizar tu sorteo</p>
+        </div>
+
+        <div class="steps-container">
+            <div class="step active" id="step1" onclick="irAPaso(0)">
+                <div class="step-number">1</div>
+                <span>Participantes</span>
+            </div>
+            <div class="step" id="step2" onclick="irAPaso(1)">
+                <div class="step-number">2</div>
+                <span>Revisar</span>
+            </div>
+            <div class="step" id="step3" onclick="irAPaso(2)">
+                <div class="step-number">3</div>
+                <span>Sorteo</span>
+            </div>
+        </div>
+
+        <div class="carousel-container">
+            <button class="nav-button prev" onclick="anterior()" id="btnPrev" disabled>◀</button>
+            <button class="nav-button next" onclick="siguiente()" id="btnNext">▶</button>
+
+            <div class="carousel-wrapper" id="carouselWrapper">
+                <div class="carousel-slide">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">📝</div>
+                            <div class="card-title">
+                                <h2>Agregar Participantes</h2>
+                                <p>Ingresa los nombres o números que participarán en el sorteo</p>
+                            </div>
+                        </div>
+                        <textarea id="numerosMasivos" rows="8" placeholder="Ingresa nombres o números separados por coma, espacio o salto de línea
+
+Ejemplo:
+Juan, María, Pedro
+123, 456, 789
+Participante A"></textarea>
+                        <div class="input-hint">
+                            💡 Máximo 100,000 participantes
+                        </div>
+                        <button id="btnAgregarMasivo" class="btn btn-primary" onclick="agregarNumerosMasivos()">
+                            <span>➕</span> Agregar en Bloque
+                        </button>
+                    </div>
+                </div>
+
+                <div class="carousel-slide">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">🎡</div>
+                            <div class="card-title">
+                                <h2>Vista Previa</h2>
+                                <p>Revisa la ruleta y los participantes antes del sorteo</p>
+                            </div>
+                        </div>
+                        <div class="ruleta-wrapper">
+                            <div class="ruleta-pointer">🔻</div>
+                            <canvas id="ruletaCanvas" width="350" height="350"></canvas>
+                        </div>
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div class="contador-badge" id="contadorParticipantes">
+                                0 participantes
+                            </div>
+                        </div>
+                        <div class="card-header" style="margin-bottom: 10px;">
+                            <div class="card-icon">👥</div>
+                            <div class="card-title">
+                                <h2>Lista de Participantes</h2>
+                            </div>
+                        </div>
+                        <div class="participantes-grid" id="listaNumeros">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <p>Aún no hay participantes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-slide">
+                    <div class="card">
+                        <div id="contenidoSorteo">
+                            <div class="card-header">
+                                <div class="card-icon">🎉</div>
+                                <div class="card-title">
+                                    <h2>Realizar el Sorteo</h2>
+                                    <p>Presiona el botón para girar la ruleta y elegir al ganador</p>
+                                </div>
+                            </div>
+                            <button id="btnSortear" class="btn btn-success" onclick="realizarSorteo()">
+                                <span>🎉</span> REALIZAR SORTEO
+                            </button>
+                        </div>
+
+                        <div id="animacionSorteo" class="hidden">
+                            <div class="animacion-sorteo">
+                                <div class="spinner">🎲</div>
+                                <div>Girando la ruleta de la suerte...</div>
+                            </div>
+                        </div>
+
+                        <div id="resultado"></div>
+
+                        <div id="btnNuevoSorteoContainer" class="hidden">
+                            <button class="btn btn-danger" onclick="nuevoSorteo()">
+                                <span>🔄</span> Nuevo Sorteo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var numeros = new Set();
+        var numeroGanador = null;
+        var sorteoRealizado = false;
+        var canvas = document.getElementById("ruletaCanvas");
+        var ctx = canvas.getContext("2d");
+        var numerosRuleta = [];
+        var anguloActual = 0;
+        var animacionId = null;
+        var girando = false;
+        var ganadorActual = null;
+        var currentSlide = 0;
+
+        function actualizarCarousel() {
+            var wrapper = document.getElementById("carouselWrapper");
+            wrapper.style.transform = "translateX(-" + (currentSlide * 100) + "%)";
+            
+            var btnPrev = document.getElementById("btnPrev");
+            var btnNext = document.getElementById("btnNext");
+            
+            btnPrev.disabled = currentSlide === 0;
+            btnNext.disabled = currentSlide === 2;
+        }
+
+        function siguiente() {
+            if (currentSlide < 2) {
+                currentSlide++;
+                actualizarCarousel();
+                actualizarPasos();
+            }
+        }
+
+        function anterior() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                actualizarCarousel();
+                actualizarPasos();
+            }
+        }
+
+        function irAPaso(paso) {
+            currentSlide = paso;
+            actualizarCarousel();
+            actualizarPasos();
+        }
+
+        function actualizarPasos() {
+            var step1 = document.getElementById("step1");
+            var step2 = document.getElementById("step2");
+            var step3 = document.getElementById("step3");
+
+            step1.className = "step";
+            step2.className = "step";
+            step3.className = "step";
+
+            if (currentSlide === 0) {
+                step1.className = "step active";
+            } else if (currentSlide === 1) {
+                step1.className = "step completed";
+                step2.className = "step active";
+            } else if (currentSlide === 2) {
+                step1.className = "step completed";
+                step2.className = "step completed";
+                step3.className = "step active";
+            }
+
+            if (sorteoRealizado) {
+                step1.className = "step completed";
+                step2.className = "step completed";
+                step3.className = "step completed";
+            }
+        }
+
+        function agregarNumerosMasivos() {
+            if (sorteoRealizado) {
+                return;
+            }
+            var texto = document.getElementById("numerosMasivos").value.trim();
+            if (texto === "") {
+                alert("⚠️ No hay números para agregar");
+                return;
+            }
+            var lista = texto.split(/[\n, ]+/);
+            if (lista.length > 100000) {
+                alert("⚠️ Máximo permitido: 100,000 números");
+                return;
+            }
+            for (var i = 0; i < lista.length; i++) {
+                if (lista[i] !== "") {
+                    numeros.add(lista[i]);
+                }
+            }
+            document.getElementById("numerosMasivos").value = "";
+            mostrarLista();
+            actualizarContador();
+            actualizarPasos();
+        }
+
+        function mostrarLista() {
+            var lista = document.getElementById("listaNumeros");
+            lista.innerHTML = "";
+            var arrayNumeros = Array.from(numeros);
+            
+            if (arrayNumeros.length === 0) {
+                lista.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>Aún no hay participantes</p></div>';
+                return;
+            }
+
+            var limite = 100000;
+            for (var i = 0; i < Math.min(arrayNumeros.length, limite); i++) {
+                var div = document.createElement("div");
+                div.className = "participante-item";
+                div.textContent = arrayNumeros[i];
+                if (arrayNumeros[i] === numeroGanador) {
+                    div.classList.add("ganador");
+                }
+                lista.appendChild(div);
+            }
+            if (arrayNumeros.length > limite) {
+                var div = document.createElement("div");
+                div.className = "participante-item";
+                div.textContent = "+" + (arrayNumeros.length - limite);
+                div.style.fontWeight = "bold";
+                lista.appendChild(div);
+            }
+            configurarRuleta(Array.from(numeros), numeroGanador);
+        }
+
+        function actualizarContador() {
+            var contador = document.getElementById("contadorParticipantes");
+            var total = numeros.size;
+            contador.textContent = total + " " + (total === 1 ? "participante" : "participantes");
+        }
+
+        function configurarRuleta(lista, ganador) {
+            numerosRuleta = lista.slice(0, 50);
+            ganadorActual = ganador;
+            dibujarRuleta();
+        }
+
+        function dibujarRuleta() {
+            if (numerosRuleta.length === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+            var total = numerosRuleta.length;
+            var radio = canvas.width / 2;
+            var centro = radio;
+            var anguloPorNumero = (2 * Math.PI) / total;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (var i = 0; i < numerosRuleta.length; i++) {
+                var numero = numerosRuleta[i];
+                var inicio = anguloActual + i * anguloPorNumero;
+                var fin = inicio + anguloPorNumero;
+                ctx.beginPath();
+                ctx.moveTo(centro, centro);
+                ctx.arc(centro, centro, radio, inicio, fin);
+                if (numero === ganadorActual) {
+                    ctx.fillStyle = "#10b981";
+                } else {
+                    ctx.fillStyle = i % 2 === 0 ? "#fbbf24" : "#fde047";
+                }
+                ctx.fill();
+                ctx.save();
+                ctx.translate(centro, centro);
+                ctx.rotate(inicio + anguloPorNumero / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = numero === ganadorActual ? "#fff" : "#000";
+                ctx.font = "bold 13px Arial";
+                ctx.fillText(numero, radio - 15, 5);
+                ctx.restore();
+            }
+        }
+
+        function girarRuletaHastaGanador(ganador) {
+            ganadorActual = ganador;
+            if (girando) {
+                return;
+            }
+            var index = numerosRuleta.indexOf(ganador);
+            if (index === -1) {
+                return;
+            }
+            girando = true;
+            ganadorActual = null;
+            var anguloPorNumero = (2 * Math.PI) / numerosRuleta.length;
+            var anguloObjetivo = (Math.PI * 3 / 2) - (index * anguloPorNumero);
+            var vueltas = 6;
+            var anguloFinal = vueltas * 2 * Math.PI + anguloObjetivo;
+            var velocidad = 0.35;
+            var desaceleracion = 0.985;
+            function animar() {
+                if (anguloActual < anguloFinal) {
+                    anguloActual += velocidad;
+                    velocidad *= desaceleracion;
+                    dibujarRuleta();
+                    animacionId = requestAnimationFrame(animar);
+                } else {
+                    anguloActual = anguloFinal;
+                    girando = false;
+                    ganadorActual = ganador;
+                    dibujarRuleta();
+                    cancelAnimationFrame(animacionId);
+                }
+            }
+            animar();
+        }
+
+        function realizarSorteo() {
+            if (numeros.size === 0) {
+                alert("⚠️ No hay números para sortear");
+                return;
+            }
+            var boton = document.getElementById("btnSortear");
+            var animacion = document.getElementById("animacionSorteo");
+            var resultado = document.getElementById("resultado");
+            var contenido = document.getElementById("contenidoSorteo");
+            
+            boton.disabled = true;
+            contenido.classList.add("hidden");
+            animacion.classList.remove("hidden");
+            resultado.innerHTML = "";
+            
+            setTimeout(function() {
+                var arrayNumeros = Array.from(numeros);
+                var indice = Math.floor(Math.random() * arrayNumeros.length);
+                numeroGanador = arrayNumeros[indice];
+                sorteoRealizado = true;
+                configurarRuleta(arrayNumeros.slice(0, 50));
+                girarRuletaHastaGanador(numeroGanador);
+                setTimeout(function() {
+                    animacion.classList.add("hidden");
+                    resultado.innerHTML = '<div class="resultado-box"><h2>🏆 ¡Número Ganador!</h2><div class="numero-ganador">' + numeroGanador + '</div></div>';
+                    mostrarLista();
+                    scrollAlGanador();
+                    bloquearEdicion();
+                    actualizarPasos();
+                    document.getElementById("btnNuevoSorteoContainer").classList.remove("hidden");
+                }, 4000);
+            }, 2000);
+        }
+
+        function bloquearEdicion() {
+            document.getElementById("numerosMasivos").disabled = true;
+            document.getElementById("btnAgregarMasivo").disabled = true;
+            document.getElementById("btnSortear").disabled = true;
+        }
+
+        function habilitarEdicion() {
+            document.getElementById("numerosMasivos").disabled = false;
+            document.getElementById("btnAgregarMasivo").disabled = false;
+            document.getElementById("btnSortear").disabled = false;
+        }
+
+        function nuevoSorteo() {
+            if (!confirm("¿Desea iniciar un nuevo sorteo? Se perderán los datos actuales.")) {
+                return;
+            }
+            numeros.clear();
+            numeroGanador = null;
+            sorteoRealizado = false;
+            numerosRuleta = [];
+            ganadorActual = null;
+            anguloActual = 0;
+            girando = false;
+            currentSlide = 0;
+            
+            document.getElementById("resultado").innerHTML = "";
+            document.getElementById("listaNumeros").innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>Aún no hay participantes</p></div>';
+            document.getElementById("numerosMasivos").value = "";
+            document.getElementById("btnNuevoSorteoContainer").classList.add("hidden");
+            document.getElementById("contenidoSorteo").classList.remove("hidden");
+            
+            dibujarRuleta();
+            actualizarContador();
+            actualizarCarousel();
+            habilitarEdicion();
+            actualizarPasos();
+        }
+
+        function scrollAlGanador() {
+            var items = document.querySelectorAll(".participante-item");
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].textContent === numeroGanador) {
+                    items[i].scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                }
+            }
+        }
+
+        actualizarContador();
+        dibujarRuleta();
+        actualizarPasos();
+        actualizarCarousel();
+    </script>
+</body>
+</html>

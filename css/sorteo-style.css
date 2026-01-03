@@ -1,0 +1,248 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: #ffffff;
+    padding: 20px;
+    width: 100%;
+    max-width: 1600px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.card {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 30px;
+    border: none;
+    background: #667eea;
+    color: white;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 32px;
+}
+
+button:hover {
+    background: #5563d8;
+}
+
+.lista {
+    margin: 15px 0;
+}
+
+
+
+.grid-numeros {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-top: 15px;
+    padding: 0;
+    list-style: none;
+}
+
+/* .grid-numeros li {
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 10px 5px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+} */
+
+.grid-numeros li {
+    padding: 10px 12px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.2s;
+}
+
+/* 🟡 Durante animación */
+.grid-numeros li.activo {
+    background: #facc15;
+    transform: scale(1.05);
+}
+
+/* 🟢 Ganador final */
+.grid-numeros li.ganador {
+    background: #22c55e;
+    color: white;
+    transform: scale(1.1);
+}
+
+.btn-sorteo {
+    width: 100%;
+    background: #28a745;
+    margin-top: 10px;
+}
+
+.btn-sorteo:hover {
+    background: #218838;
+}
+
+.resultado {
+    margin-top: 20px;
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+}
+
+@media (max-width: 480px) {
+    .card {
+        flex-direction: column;
+    }
+}
+
+.card-masivo {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+textarea {
+    width: 100%;
+    resize: vertical;
+    padding: 10px;
+    font-size: 14px;
+}
+
+
+.hidden {
+    display: none;
+}
+
+
+.animacion {
+    animation: fadeIn 0.4s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+
+/* .grid-numeros li.ganador {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #ffffff;
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+    animation: pulse 1.2s infinite;
+} */
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+    }
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 20px rgba(34, 197, 94, 1);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+    }
+}
+
+.btn-reset {
+    width: 100%;
+    margin-top: 15px;
+    background: #ef4444;
+    color: #fff;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+.btn-reset:hover {
+    background: #dc2626;
+}
+
+
+.slot {
+    margin: 25px 0;
+    display: flex;
+    justify-content: center;
+}
+
+#slotNumero {
+    font-size: 48px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #fff;
+    padding: 20px 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    letter-spacing: 3px;
+}
+
+
+/* .slot {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.slot span {
+    background: #6366f1;
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+    padding: 18px 40px;
+    border-radius: 16px;
+    letter-spacing: 3px;
+} */
+
+/* .ruleta-container {
+    display: none;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.ruleta-container.visible {
+    display: flex;
+}
+
+canvas {
+    background: #111;
+    border-radius: 50%;
+    box-shadow: 0 0 25px rgba(255,215,0,0.6);
+}
+
+.ruleta-container::after {
+    font-size: 32px;
+    color: gold;
+    position: absolute;
+    margin-top: -18px;
+} */
+
