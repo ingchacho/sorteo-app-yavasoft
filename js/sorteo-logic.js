@@ -1,3 +1,5 @@
+let esPremium = localStorage.getItem("premium") === "true";
+
 let numeros = new Set();
 let numeroGanador = null;
 let sorteoRealizado = false;
@@ -18,8 +20,8 @@ function agregarNumerosMasivos() {
 
     const lista = texto.split(/[\n, ]+/);
 
-    if (lista.length > 100000) {
-        alert("Máximo permitido: 100.000 números");
+    if (!esPremium && numeros.size + lista.length > 100) {
+        alert("Versión gratuita permite hasta 100 items.\nActualiza a Premium 🚀");
         return;
     }
 
@@ -143,6 +145,8 @@ function guardarEstado() {
 }
 
 function cargarEstado() {
+    actualizarPlanUI();
+
     const data = localStorage.getItem("sorteoApp");
     if (!data) return;
 
@@ -290,6 +294,30 @@ function animarSeleccion(arrayNumeros, ganador, callback) {
     }, velocidad);
 }
 
+function actualizarPlanUI() {
+    const badge = document.getElementById("badgePlan");
+    if (esPremium) {
+        badge.textContent = "PLAN PREMIUM";
+        badge.className = "badge premium";
+    }
+}
+
+function activarPremium() {
+    localStorage.setItem("premium", "true");
+    esPremium = true;
+    actualizarPlanUI();
+    alert("🎉 Premium activado");
+}
+
+function validarCodigo(codigo) {
+    const codigosValidos = ["VIP2025", "SORTEO-PRO"];
+    if (codigosValidos.includes(codigo)) {
+        localStorage.setItem("premium", "true");
+        location.reload();
+    } else {
+        alert("Código inválido");
+    }
+}
 
 cargarEstado();
 

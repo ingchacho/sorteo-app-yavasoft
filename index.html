@@ -9,6 +9,19 @@
 <body>
     <div class="container">
         <h1>🎲 Sorteo</h1>
+        
+        <div class="premium-box">
+            <h3>🚀 Pasa a Premium</h3>
+            <p>Más items, exportación, uso comercial</p>
+            <button onclick="mostrarPago()">Actualizar ahora</button>
+        </div>
+
+        
+        <button onclick="activarPremium()" style="display:none">Activar Premium</button>
+
+    
+
+        <div id="badgePlan" class="badge free">PLAN GRATUITO</div>
 
         <div class="card-masivo">
             <textarea id="numerosMasivos" rows="5" placeholder="Pega aquí los items del sorteo (nombres o números, separados por coma o espacio)"></textarea>
