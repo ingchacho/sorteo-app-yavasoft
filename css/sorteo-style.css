@@ -67,16 +67,6 @@ button:hover {
     list-style: none;
 }
 
-/* .grid-numeros li {
-    background: #f3f4f6;
-    border-radius: 8px;
-    padding: 10px 5px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 14px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-} */
-
 .grid-numeros li {
     padding: 10px 12px;
     background: #f3f4f6;
@@ -137,7 +127,7 @@ textarea {
 
 
 .hidden {
-    display: none;
+display: none !important;
 }
 
 
@@ -149,15 +139,6 @@ textarea {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
-
-
-/* .grid-numeros li.ganador {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: #ffffff;
-    font-weight: bold;
-    box-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
-    animation: pulse 1.2s infinite;
-} */
 
 @keyframes pulse {
     0% {
@@ -207,45 +188,6 @@ textarea {
 }
 
 
-/* .slot {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-}
-
-.slot span {
-    background: #6366f1;
-    color: white;
-    font-size: 36px;
-    font-weight: bold;
-    padding: 18px 40px;
-    border-radius: 16px;
-    letter-spacing: 3px;
-} */
-
-/* .ruleta-container {
-    display: none;
-    justify-content: center;
-    margin: 20px 0;
-}
-
-.ruleta-container.visible {
-    display: flex;
-}
-
-canvas {
-    background: #111;
-    border-radius: 50%;
-    box-shadow: 0 0 25px rgba(255,215,0,0.6);
-}
-
-.ruleta-container::after {
-    font-size: 32px;
-    color: gold;
-    position: absolute;
-    margin-top: -18px;
-} */
-
 .badge {
     display: inline-block;
     padding: 6px 14px;
@@ -262,4 +204,37 @@ canvas {
 .badge.premium {
     background: #22c55e;
     color: #ffffff;
+}
+
+.btn-premium {
+    background: #6366f1;
+    color: white;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 18px;
+    margin: 15px 0;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+.modal-content button {
+    width: 100%;
+    margin-top: 10px;
 }

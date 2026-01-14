@@ -13,13 +13,8 @@
         <div class="premium-box">
             <h3>🚀 Pasa a Premium</h3>
             <p>Más items, exportación, uso comercial</p>
-            <button onclick="mostrarPago()">Actualizar ahora</button>
-        </div>
-
-        
-        <button onclick="activarPremium()" style="display:none">Activar Premium</button>
-
-    
+            <button id="btnPremium" class="btn-premium">Actualizar ahora</button>
+        </div>    
 
         <div id="badgePlan" class="badge free">PLAN GRATUITO</div>
 
@@ -48,6 +43,30 @@
             <ul id="listaNumeros" class="grid-numeros"></ul>
         </div>
     </div>
+    
+    <div id="modalPremium" class="modal hidden">
+        <div class="modal-content">
+            <h2>🚀 Plan Premium</h2>
+            <p>Acceso ilimitado al sorteo</p>
+
+            <h3>💰 Precio: $10.000 COP</h3>
+
+            <p><strong>Paga por Nequi o Daviplata:</strong></p>
+
+            <ul style="text-align:left">
+                <li>📱 Nequi: <strong>300 123 4567</strong></li>
+                <li>📱 Daviplata: <strong>300 123 4567</strong></li>
+            </ul>
+
+            <p>📌 Concepto: <strong>Sorteo Premium</strong></p>
+
+            <button id="btnConfirmarPago">✅ Ya pagué</button>
+            <button id="btnCerrarModal">❌ Cancelar</button>
+        </div>
+    </div>
+
+    
     <script src="js/sorteo-logic.js"></script>
+
 </body>
 </html>

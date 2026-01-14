@@ -1,4 +1,35 @@
-let esPremium = localStorage.getItem("premium") === "true";
+/**************************************
+ * CONFIGURACIÓN PLANES
+ **************************************/
+
+const LIMITE_GRATIS = 100;
+const LIMITE_PREMIUM = 100000;
+
+/**************************************
+ * ESTADO PREMIUM (SEGURO)
+ **************************************/
+
+let esPremium = false;
+
+function cargarPremium() {
+    const data = localStorage.getItem("premium");
+    if (data) {
+        try {
+            const p = JSON.parse(data);
+            esPremium = p.activo === true;
+        } catch {
+            esPremium = false;
+        }
+    }
+}
+
+function obtenerLimite() {
+    return esPremium ? LIMITE_PREMIUM : LIMITE_GRATIS;
+}
+
+/**************************************
+ * VARIABLES GLOBALES
+ **************************************/
 
 let numeros = new Set();
 let numeroGanador = null;
@@ -7,85 +38,90 @@ let sorteoRealizado = false;
 let intervaloSlot = null;
 let ganadorTemporal = null;
 
+/**************************************
+ * AGREGAR ITEMS
+ **************************************/
 
 function agregarNumerosMasivos() {
-    
+
     if (sorteoRealizado) return;
 
-    const texto = document.getElementById("numerosMasivos").value.trim();
+    const textarea = document.getElementById("numerosMasivos");
+    const texto = textarea.value.trim();
+
     if (texto === "") {
-        alert("No hay números para agregar");
+        alert("No hay items para agregar");
         return;
     }
 
     const lista = texto.split(/[\n, ]+/);
 
-    if (!esPremium && numeros.size + lista.length > 100) {
-        alert("Versión gratuita permite hasta 100 items.\nActualiza a Premium 🚀");
+    if (lista.length > obtenerLimite()) {
+        alert(`Límite permitido: ${obtenerLimite()} items`);
         return;
     }
 
-    lista.forEach(num => {
-        if (num !== "") {
-            numeros.add(num);
+    lista.forEach(item => {
+        if (item !== "") {
+            numeros.add(item);
         }
     });
 
-    document.getElementById("numerosMasivos").value = "";
+    textarea.value = "";
     mostrarLista();
 }
 
+/**************************************
+ * MOSTRAR LISTA
+ **************************************/
+
 function mostrarLista() {
-    const lista = document.getElementById("listaNumeros");
-    lista.innerHTML = "";
+    const listaHTML = document.getElementById("listaNumeros");
+    listaHTML.innerHTML = "";
 
     const arrayNumeros = Array.from(numeros);
-    const limite = 100000;
+    const limiteVisual = 100000;
 
-    arrayNumeros.slice(0, limite).forEach(num => {
+    arrayNumeros.slice(0, limiteVisual).forEach(num => {
         const li = document.createElement("li");
         li.textContent = num;
 
-        // Resaltar si es el ganador
         if (num === numeroGanador) {
             li.classList.add("ganador");
         }
 
-        lista.appendChild(li);
+        listaHTML.appendChild(li);
     });
 
-    if (arrayNumeros.length > limite) {
+    if (arrayNumeros.length > limiteVisual) {
         const li = document.createElement("li");
-        li.textContent = `+${arrayNumeros.length - limite}`;
+        li.textContent = `+${arrayNumeros.length - limiteVisual}`;
         li.style.fontWeight = "bold";
         li.style.background = "#e5e7eb";
-        lista.appendChild(li);
+        listaHTML.appendChild(li);
     }
-
 }
 
+/**************************************
+ * REALIZAR SORTEO (SLOT MACHINE)
+ **************************************/
+
 function realizarSorteo() {
+
     if (numeros.size === 0) {
         alert("No hay items para sortear");
         return;
     }
 
-
     numeroGanador = null;
     document.getElementById("resultado").innerHTML = "";
-    document.getElementById("slotContainer").classList.add("hidden");
-    document.getElementById("slotNumero").textContent = "";
 
-
-
-
-
-    const btn = document.querySelector(".btn-sorteo");
-    const slot = document.getElementById("slotContainer");
+    const slotContainer = document.getElementById("slotContainer");
     const slotNumero = document.getElementById("slotNumero");
+    const btn = document.querySelector(".btn-sorteo");
 
     btn.disabled = true;
-    slot.classList.remove("hidden");
+    slotContainer.classList.remove("hidden");
 
     const arrayNumeros = Array.from(numeros);
     let index = 0;
@@ -93,13 +129,10 @@ function realizarSorteo() {
     intervaloSlot = setInterval(() => {
         ganadorTemporal = arrayNumeros[index % arrayNumeros.length];
         slotNumero.textContent = ganadorTemporal;
-
         resaltarTemporal(ganadorTemporal);
-
         index++;
     }, 60);
 
-    // ⏱ Detener animación y elegir ganador
     setTimeout(() => {
         clearInterval(intervaloSlot);
 
@@ -118,21 +151,28 @@ function realizarSorteo() {
 
         btn.disabled = false;
         document.getElementById("btnNuevoSorteo").classList.remove("hidden");
+
     }, 3000);
 }
+
+/**************************************
+ * EFECTOS VISUALES
+ **************************************/
 
 function resaltarTemporal(valor) {
     const items = document.querySelectorAll("#listaNumeros li");
 
     items.forEach(li => {
         li.classList.remove("activo");
-
         if (li.textContent === valor && valor !== numeroGanador) {
             li.classList.add("activo");
         }
     });
 }
 
+/**************************************
+ * ESTADO LOCAL
+ **************************************/
 
 function guardarEstado() {
     const data = {
@@ -140,11 +180,12 @@ function guardarEstado() {
         numeroGanador,
         sorteoRealizado
     };
-
     localStorage.setItem("sorteoApp", JSON.stringify(data));
 }
 
 function cargarEstado() {
+
+    cargarPremium();
     actualizarPlanUI();
 
     const data = localStorage.getItem("sorteoApp");
@@ -163,31 +204,26 @@ function cargarEstado() {
         document.getElementById("resultado").innerHTML =
             `🏆 Item ganador: <strong>${numeroGanador}</strong>`;
         document.getElementById("btnNuevoSorteo").classList.remove("hidden");
-
     }
 }
 
+/**************************************
+ * BLOQUEO / RESET
+ **************************************/
+
 function bloquearEdicion() {
-    document.getElementById("numerosMasivos")?.setAttribute("disabled", true);
-    document.getElementById("btnAgregarMasivo")?.setAttribute("disabled", true);
-    document.getElementById("btnAgregarUno")?.setAttribute("disabled", true);
-    document.getElementById("btnSortear")?.setAttribute("disabled", true);
+    ["numerosMasivos", "btnAgregarMasivo", "btnAgregarUno", "btnSortear"]
+        .forEach(id => document.getElementById(id)?.setAttribute("disabled", true));
 }
 
 function habilitarEdicion() {
-    document.getElementById("numerosMasivos")?.removeAttribute("disabled");
-    document.getElementById("btnAgregarMasivo")?.removeAttribute("disabled");
-    document.getElementById("btnAgregarUno")?.removeAttribute("disabled");
-    document.getElementById("btnSortear")?.removeAttribute("disabled");
+    ["numerosMasivos", "btnAgregarMasivo", "btnAgregarUno", "btnSortear"]
+        .forEach(id => document.getElementById(id)?.removeAttribute("disabled"));
 }
 
-
 function nuevoSorteo() {
-    if (!confirm("¿Desea iniciar un nuevo sorteo? Se perderán los datos actuales.")) {
-        return;
-    }
+    if (!confirm("¿Desea iniciar un nuevo sorteo?")) return;
 
-    // Reset estado
     numeros.clear();
     numeroGanador = null;
     sorteoRealizado = false;
@@ -197,127 +233,81 @@ function nuevoSorteo() {
     document.getElementById("resultado").innerHTML = "";
     document.getElementById("listaNumeros").innerHTML = "";
     document.getElementById("numerosMasivos").value = "";
-    habilitarEdicion();
     document.getElementById("slotContainer").classList.add("hidden");
     document.getElementById("slotNumero").textContent = "";
     document.getElementById("btnNuevoSorteo").classList.add("hidden");
 
+    habilitarEdicion();
 }
 
-function scrollAlGanador() {
-    const items = document.querySelectorAll("#listaNumeros li");
-
-    items.forEach(li => {
-        if (li.textContent === numeroGanador) {
-            li.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-            });
-        }
-    });
-}
-
-
-
-function animarSlot(numerosArray, ganador, callback) {
-    const slot = document.getElementById("slotNumero");
-    const contenedor = document.getElementById("slotContainer");
-
-    contenedor.classList.remove("hidden");
-
-    let ciclos = 0;
-    const maxCiclos = 25;
-
-    const intervalo = setInterval(() => {
-        const random =
-            numerosArray[Math.floor(Math.random() * numerosArray.length)];
-
-        slot.textContent = random;
-        ciclos++;
-
-        if (ciclos >= maxCiclos) {
-            clearInterval(intervalo);
-            slot.textContent = ganador;
-            callback();
-        }
-    }, 100);
-}
-
-
-function animarSeleccion(arrayNumeros, ganador, callback) {
-    const items = document.querySelectorAll("#listaNumeros li");
-    const slot = document.getElementById("slotBox");
-    const slotNumero = document.getElementById("slotNumero");
-
-    let index = 0;
-    let ciclos = 0;
-    const maxCiclos = 3; // vueltas completas
-    const velocidad = 60;
-
-    slot.classList.remove("hidden");
-
-    const intervalo = setInterval(() => {
-
-        // limpiar estados
-        items.forEach(li => li.classList.remove("activo"));
-
-        const actual = arrayNumeros[index];
-        slotNumero.textContent = actual;
-
-        // resaltar en grid
-        const liActual = [...items].find(li => li.textContent === actual);
-        if (liActual) {
-            liActual.classList.add("activo");
-            liActual.scrollIntoView({ block: "center", behavior: "smooth" });
-        }
-
-        index++;
-
-        if (index >= arrayNumeros.length) {
-            index = 0;
-            ciclos++;
-        }
-
-        // detener en el ganador
-        if (ciclos >= maxCiclos && actual === ganador) {
-            clearInterval(intervalo);
-
-            items.forEach(li => li.classList.remove("activo"));
-
-            if (liActual) {
-                liActual.classList.add("ganador");
-            }
-
-            callback();
-        }
-
-    }, velocidad);
-}
+/**************************************
+ * UI PREMIUM
+ **************************************/
 
 function actualizarPlanUI() {
     const badge = document.getElementById("badgePlan");
+    if (!badge) return;
+
     if (esPremium) {
         badge.textContent = "PLAN PREMIUM";
         badge.className = "badge premium";
+    } else {
+        badge.textContent = "PLAN GRATIS";
+        badge.className = "badge";
     }
 }
 
+/**************************************
+ * ACTIVACIÓN PREMIUM (MANUAL)
+ **************************************/
+
 function activarPremium() {
-    localStorage.setItem("premium", "true");
-    esPremium = true;
-    actualizarPlanUI();
+    localStorage.setItem("premium", JSON.stringify({
+        activo: true,
+        desde: Date.now()
+    }));
+
     alert("🎉 Premium activado");
+    location.reload();
 }
 
 function validarCodigo(codigo) {
     const codigosValidos = ["VIP2025", "SORTEO-PRO"];
+
     if (codigosValidos.includes(codigo)) {
-        localStorage.setItem("premium", "true");
-        location.reload();
+        activarPremium();
     } else {
         alert("Código inválido");
     }
 }
 
-cargarEstado();
+/**************************************
+ * MODAL PREMIUM
+ **************************************/
 
+document.getElementById("btnPremium")?.addEventListener("click", () => {
+    document.getElementById("modalPremium").classList.remove("hidden");
+});
+
+document.getElementById("btnCerrarModal")?.addEventListener("click", () => {
+    document.getElementById("modalPremium").classList.add("hidden");
+});
+
+document.getElementById("btnConfirmarPago")?.addEventListener("click", () => {
+    activarPremium();
+});
+
+/**************************************
+ * INIT
+ **************************************/
+
+
+// Cerrar modal si el usuario hace clic fuera del contenido blanco
+window.addEventListener("click", (event) => {
+    const modal = document.getElementById("modalPremium");
+    if (event.target === modal) {
+        modal.classList.add("hidden");
+    }
+});
+
+cargarEstado();
